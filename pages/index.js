@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setNewChats } from "@/store/reducers/chat.reducer";
 import CircleLoader from "@/components/loader";
 import ErrorHandler from "@/components/errorHandler";
+import Blobs from "@/components/blobs";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -66,7 +67,8 @@ const Home = () => {
     <main
       className={`min-h-screen h-screen min-w-screen flex items-center justify-center flex-col pt-24 px-10 md:px-24 ${inter.className}`}
     >
-      <h2 className="text-center text-xl">
+      <Blobs />
+      <h2 className="text-center text-2xl font-bold">
         CP8323 - Advanced Natural Language Processing
       </h2>
       <div className="overflow-auto w-[65%]">
