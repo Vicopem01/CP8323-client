@@ -70,13 +70,13 @@ const Home = () => {
         <title>CP8323 - Advanced Natural Language Processing</title>
       </Head>
       <main
-        className={`min-h-screen h-screen min-w-screen flex items-center justify-center flex-col pt-24 px-10 md:px-24 ${inter.className}`}
+        className={`overflow-hidden min-h-screen h-screen relative min-w-screen flex items-center justify-center flex-col px-10 md:px-24 ${inter.className}`}
       >
         <Blobs />
-        <h2 className="text-center text-2xl font-bold">
+        <h2 className="text-center text-lg md:text-2xl font-bold">
           CP8323 - Advanced Natural Language Processing
         </h2>
-        <div className="overflow-auto w-[65%]">
+        <div className="overflow-auto w-[90%] md:w-[65%]">
           {chats.map((data, idx) => (
             <div key={idx}>
               <div>
