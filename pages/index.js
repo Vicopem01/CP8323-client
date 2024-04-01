@@ -1,118 +1,126 @@
-import Image from "next/image";
 import { Inter } from "next/font/google";
+import { useEffect, useRef, useState } from "react";
+import SendMessage from "@/public/send-message.svg";
+import Image from "next/image";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { setNewChats } from "@/store/reducers/chat.reducer";
+import CircleLoader from "@/components/loader";
+import ErrorHandler from "@/components/errorHandler";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function Home() {
+const Home = () => {
+  const chats = useSelector((el) => el.chats);
+  const [inputValue, setInputValue] = useState("");
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const textareaRef = useRef(null);
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea.scrollHeight > textarea.clientHeight) {
+      textarea.style.height = textarea.scrollHeight + "px";
+    }
+  }, []);
+
+  const handleInput = (e) => {
+    const textarea = textareaRef.current;
+    if (textarea.scrollHeight > textarea.clientHeight) {
+      textarea.style.height = textarea.scrollHeight + "px";
+    }
+    setInputValue(e.target.value);
+  };
+
+  const handleFormSubmit = async (event) => {
+    event.preventDefault(); // Prevent the default form submit action
+    handleServerSubmit();
+  };
+
+  const handleServerSubmit = async () => {
+    setLoading(true);
+    let query = inputValue;
+    try {
+      const response = await axios.post(
+        "https://cp8323-server.onrender.com/query",
+        { userString: inputValue }
+      );
+      dispatch(setNewChats({ question: query, answer: response.data }));
+      setInputValue("");
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      ErrorHandler(null, "Failed to receive response from the server.");
+    }
+  };
+
+  const handleKeyDown = (event) => {
+    // Check if the Enter key was pressed along with the Command or Control key
+    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault();
+      handleServerSubmit();
+    }
+  };
+
   return (
     <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
+      className={`min-h-screen h-screen min-w-screen flex items-center justify-center flex-col pt-24 px-10 md:px-24 ${inter.className}`}
     >
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">pages/index.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      <h2 className="text-center text-xl">
+        CP8323 - Advanced Natural Language Processing
+      </h2>
+      <div className="overflow-auto w-[65%]">
+        {chats.map((data, idx) => (
+          <div key={idx}>
+            <div>
+              <span className="bg-[#575a7b] text-sm px-2 py-1 rounded-md">
+                User
+              </span>
+              <p className="mt-1">{data.question}</p>
+            </div>
+            <div className="mt-4 mb-10">
+              <span className="bg-[#6658ea] text-sm px-2 py-1 rounded-md">
+                Model
+              </span>
+              <p className="mt-1">{data.answer.answer}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="max-w-5xl w-full text-md mt-10">
+        <form
+          onSubmit={handleFormSubmit}
+          className="flex items-center justify-center"
+        >
+          <div
+            className={`gradient-1 rounded-[5px] inline-block w-full relative max-w-full md:max-w-md`}
           >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+            <textarea
+              ref={textareaRef}
+              placeholder="Type question..."
+              className={`peer border block max-h-60 h-10 w-full rounded-md p-2 focus:outline-none bg-black text-white resize-none text-lg`}
+              onChange={handleInput}
+              value={inputValue}
+              spellCheck={true}
+              onKeyDown={handleKeyDown}
+            ></textarea>
+            <div
+              className={`gradient-1 transition-300 absolute inset-0 -z-10 h-[calc(100%+3px)] w-[calc(100%+3px)] rounded-2xl opacity-0 blur-lg peer-focus:opacity-80`}
+            ></div>
+          </div>
+          <div className="ml-4">
+            {loading ? (
+              <CircleLoader />
+            ) : (
+              <button type="submit" className="bg-transparent">
+                <Image src={SendMessage} alt="Send Message" />
+              </button>
+            )}
+          </div>
+        </form>
       </div>
     </main>
   );
-}
+};
+
+export default Home;

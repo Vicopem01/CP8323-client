@@ -26,6 +26,10 @@ body {
     rgb(var(--background-start-rgb));
 }
 
+.gradient-1 {
+  background: linear-gradient(54deg, #ff00ff 0%, #00ffff 100%);
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
